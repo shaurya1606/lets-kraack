@@ -9,22 +9,15 @@ This monorepo is organized into two main directories:
 ### 📱 Apps (`/apps`)
 Full applications and services:
 
-- **`frontend/`** - Next.js web application (user-facing interface)
-- **`backend/`** - Node.js API server (main backend services)
-- **`admin/`** - Admin dashboard (management interface)
-- **`ai-service/`** - AI microservice (machine learning endpoints)
-- **`auth-service/`** - Authentication microservice
-- **`notification-service/`** - Notification handling service
+- **`web/`** - Next.js web application (user-facing interface)
+- **`api/`** - NestJS API server (main backend services)
 
 ### 📦 Packages (`/packages`)
 Shared libraries and configurations:
 
 - **`ui/`** - React component library (shared UI components)
-- **`shared/`** - Common utilities, types, and business logic
 - **`eslint-config/`** - ESLint configurations for all apps
 - **`typescript-config/`** - TypeScript configurations
-- **`database/`** - Database schemas and migrations
-- **`api-client/`** - Generated API client for services
 
 ## 🚀 Getting Started
 
@@ -44,34 +37,34 @@ cd letskraack
 pnpm install
 
 # Install Turbo globally (optional)
-npm install -g @turbo/cli
+npm install -g turbo
 ```
 
 ### Development
 
 ```bash
 # Start all applications in development mode
-turbo dev
+pnpm dev
 
 # Start specific application
-turbo dev --filter=frontend
-turbo dev --filter=backend
+pnpm dev --filter=web
+pnpm dev --filter=api
 
 # Build all packages and apps
-turbo build
+pnpm build
 
 # Run tests across all packages
-turbo test
+pnpm test
 
 # Lint all code
-turbo lint
+pnpm lint
 ```
 
 ### Package Management
 
 ```bash
 # Add dependency to specific app
-pnpm add <package> --filter=frontend
+pnpm add <package> --filter=web
 
 # Add dependency to specific package
 pnpm add <package> --filter=@letskraack/ui
@@ -82,25 +75,23 @@ pnpm add -D <package> -w
 
 ## 🛠️ Technology Stack
 
-- **Framework**: Next.js (Frontend), Express.js (Backend)
+- **Frontend**: Next.js with React
+- **Backend**: NestJS (TypeScript Node.js framework)
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: JWT + OAuth2
-- **Testing**: Jest, Playwright
-- **Deployment**: Docker, Kubernetes
-- **Monitoring**: OpenTelemetry
+- **Package Management**: pnpm with Workspaces
+- **Build System**: Turborepo
+- **Linting**: ESLint
+- **Testing**: Jest
 
 ## 📋 Available Scripts
 
 | Command | Description |
 |---------|-------------|
-| `turbo dev` | Start all apps in development mode |
-| `turbo build` | Build all apps and packages |
-| `turbo test` | Run tests across all packages |
-| `turbo lint` | Lint all code |
-| `turbo clean` | Clean all build artifacts |
-| `turbo type-check` | Run TypeScript type checking |
+| `pnpm dev` | Start all apps in development mode |
+| `pnpm build` | Build all apps and packages |
+| `pnpm test` | Run tests across all packages |
+| `pnpm lint` | Lint all code |
+| `pnpm clean` | Clean all build artifacts |
 
 ## 🔧 Configuration
 
@@ -111,44 +102,47 @@ pnpm add -D <package> -w
 
 ### Environment Variables
 Each app has its own `.env` file:
-- `apps/frontend/.env.local`
-- `apps/backend/.env`
-- `apps/admin/.env.local`
+- `apps/web/.env.local`
+- `apps/api/.env`
 
 ## 🚢 Deployment
 
 ### Production Build
 ```bash
 # Build all applications for production
-turbo build
+pnpm build
 
 # Build specific application
-turbo build --filter=frontend
+pnpm build --filter=web
 ```
 
 ### Docker
-Each app includes a Dockerfile for containerization:
+Each app can be containerized:
 ```bash
-# Build Docker image for frontend
-docker build -f apps/frontend/Dockerfile .
+# Build Docker image for web frontend
+docker build -f apps/web/Dockerfile .
 
-# Build all services using docker-compose
-docker-compose up --build
+# Build Docker image for API backend
+docker build -f apps/api/Dockerfile .
 ```
 
 ## 🤝 Contributing
 
+For detailed contribution guidelines, please see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+### Quick Guide
+
 1. **Branch Naming**: Use `feature/`, `bugfix/`, or `hotfix/` prefixes
 2. **Commits**: Follow conventional commit format
 3. **Pull Requests**: Ensure all tests pass and include proper documentation
-4. **Code Style**: Run `turbo lint` and `turbo format` before committing
+4. **Code Style**: Run `pnpm lint` before committing
 
 ### Commit Message Format
 ```
 type(scope): description
 
-feat(frontend): add user authentication
-fix(backend): resolve database connection issue
+feat(web): add user authentication
+fix(api): resolve connection issue
 docs(readme): update installation instructions
 ```
 
@@ -156,63 +150,52 @@ docs(readme): update installation instructions
 
 ```mermaid
 graph TD
-    A[frontend] --> B[@letskraack/ui]
-    A --> C[@letskraack/shared]
-    A --> D[@letskraack/api-client]
+    A[web] --> B[@letskraack/ui]
+    A --> C[@letskraack/typescript-config]
+    A --> D[@letskraack/eslint-config]
     
-    E[backend] --> C
-    E --> F[@letskraack/database]
+    E[api] --> C
+    E --> D
     
-    G[admin] --> B
-    G --> C
-    G --> D
-    
-    H[ai-service] --> C
-    I[auth-service] --> C
-    I --> F
+    B --> C
+    B --> D
 ```
 
 ## 🔍 Useful Commands
 
 ```bash
 # Add new app
-mkdir apps/new-app
+mkdir -p apps/new-app
 cd apps/new-app
 pnpm init
 
 # Add new package
-mkdir packages/new-package
+mkdir -p packages/new-package
 cd packages/new-package
 pnpm init
-
-# Check which packages depend on a specific package
-pnpm why <package-name>
 
 # Update all dependencies
 pnpm update -r
 
 # Clean node_modules and reinstall
-pnpm clean:deps && pnpm install
+rm -rf node_modules && pnpm install
 ```
 
 ## 📖 Documentation
 
-- [API Documentation](./docs/api.md)
-- [Deployment Guide](./docs/deployment.md)
-- [Contributing Guidelines](./docs/contributing.md)
-- [Architecture Overview](./docs/architecture.md)
+- [Architecture Overview](ARCHITECTURE.md)
+- [Contributing Guidelines](CONTRIBUTING.md)
 
 ## 🆘 Troubleshooting
 
 ### Common Issues
-1. **Build failures**: Run `turbo clean` and reinstall dependencies
-2. **Type errors**: Ensure all packages are built: `turbo build`
+1. **Build failures**: Run `pnpm clean` and reinstall dependencies
+2. **Type errors**: Ensure all packages are built with `pnpm build`
 3. **Dependency issues**: Check workspace configuration in `pnpm-workspace.yaml`
 
 ### Getting Help
 - Create an issue in the repository
 - Check existing documentation
-- Contact the development team
 
 ## 📄 License
 
