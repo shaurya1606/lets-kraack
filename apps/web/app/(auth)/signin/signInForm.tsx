@@ -1,9 +1,11 @@
 "use client"
 import React from 'react'
 import { useActionState } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import SubmitButton from "@/components/ui/submitButton";
+import { Label } from "@repo/ui/label";
+import { Input } from "@/repo/ui/input";
+
+import Button from "@repo/ui/button";
+// Or update the path to the correct location if different.
 import { signIn } from "@/lib/auth";
 import Link from 'next/link';
 

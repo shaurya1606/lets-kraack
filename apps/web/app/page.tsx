@@ -1,7 +1,6 @@
 import React from 'react';
-import HomePage from './Home/page';
 import { getSession } from '@/lib/session';
-import Dashboard from './dashboard/page';
+
 
 
 export default async function Home() {
@@ -10,11 +9,11 @@ export default async function Home() {
    <>
      {!session || !session.user ? (
             <>
-               <HomePage />
+               {/* public page */}
             </>
         ): (
             <>
-              <Dashboard />
+            {/* protected page */}
             </>
         )}
    </>

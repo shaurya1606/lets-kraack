@@ -7,6 +7,7 @@ import { LocalAuthGuard } from './gaurds/local-auth/local-auth.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // sign up endpoint 
   @Post("signup")
   async registerUser(@Body() createUserDto: CreateUserDto) {
     return this.authService.registerUser(createUserDto);

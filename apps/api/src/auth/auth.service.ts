@@ -13,6 +13,7 @@ export class AuthService {
         private readonly jwtService: JwtService
     ) {}
 
+    //register the user to the application
     async registerUser(createUserDto: CreateUserDto) {
         // Logic to register user
         const user = await this.userService.findByEmail(createUserDto.email);
@@ -31,6 +32,7 @@ export class AuthService {
 
         return { id: user.id, name: user.name };
     }
+    
     async login(userId:number, name?:string) {
         const { accessToken } = await this.generateToken(userId);
         return { id: userId, name, accessToken };

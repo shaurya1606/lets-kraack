@@ -28,15 +28,6 @@ model User {
 
   // Relations
   profile         Profile?
-  tracks          Track[]
-  quizAttempts    QuizAttempt[]
-  assessments     Assessment[]
-  codeSessions    CodeSession[]
-  whiteboards     WhiteboardSession[] @relation("WhiteboardOwner")
-  interviews      InterviewSession[]
-  tasks           Task[]
-  blogs           Blog[]
-  subscriptions   Subscription[]
 
   @@map("users")
 }
@@ -56,212 +47,15 @@ model Profile {
   @@map("profiles")
 }
 
-// Learning tracks that contain courses
-model Track {
-  id          String    @id @default(uuid())
-  slug        String    @unique
-  title       String
-  description String
-  metadata    Json?
-  createdBy   String    @map("created_by")
-  published   Boolean   @default(false)
-  
-  // Relations
-  author      User      @relation(fields: [createdBy], references: [id])
-  courses     Course[]
 
-  @@map("tracks")
-}
 
-// Individual courses within tracks
-model Course {
-  id          String    @id @default(uuid())
-  trackId     String    @map("track_id")
-  title       String
-  order       Int
-  contentRef  String    @map("content_ref")
-  duration    Int       // duration in minutes
-  
-  // Relations
-  track       Track     @relation(fields: [trackId], references: [id], onDelete: Cascade)
-  lessons     Lesson[]
 
-  @@map("courses")
-}
 
-// Lessons within courses
-model Lesson {
-  id          String    @id @default(uuid())
-  courseId    String    @map("course_id")
-  title       String
-  body        String    // markdown content
-  resources   Json?     // additional resources
-  
-  // Relations
-  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  quizzes     Quiz[]
 
-  @@map("lessons")
-}
 
-// Quizzes attached to lessons
-model Quiz {
-  id          String    @id @default(uuid())
-  lessonId    String    @map("lesson_id")
-  type        QuizType
-  schema      Json      // configuration schema
-  
-  // Relations
-  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  questions   QuizQuestion[]
-  attempts    QuizAttempt[]
 
-  @@map("quizzes")
-}
 
-// Quiz questions
-model QuizQuestion {
-  id          String    @id @default(uuid())
-  quizId      String    @map("quiz_id")
-  questionJson Json     @map("question_json") // Flexible JSON structure for different question types
-  
-  // Relations
-  quiz        Quiz      @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
-  @@map("quiz_questions")
-}
-
-// Records of quiz attempts
-model QuizAttempt {
-  id          String    @id @default(uuid())
-  quizId      String    @map("quiz_id")
-  userId      String    @map("user_id")
-  answers     Json      // User's answers
-  score       Float
-  completedAt DateTime  @map("completed_at")
-  
-  // Relations
-  quiz        Quiz      @relation(fields: [quizId], references: [id])
-  user        User      @relation(fields: [userId], references: [id])
-
-  @@map("quiz_attempts")
-}
-
-// Assessment sessions
-model Assessment {
-  id           String           @id @default(uuid())
-  userId       String           @map("user_id")
-  type         AssessmentType
-  scheduledAt  DateTime         @map("scheduled_at")
-  status       AssessmentStatus
-  result       Json?
-  
-  // Relations
-  user         User             @relation(fields: [userId], references: [id])
-  codeSessions CodeSession[]
-
-  @@map("assessments")
-}
-
-// Code assessment sessions
-model CodeSession {
-  id             String    @id @default(uuid())
-  assessmentId   String    @map("assessment_id")
-  userId         String    @map("user_id")
-  initialCode    String    @map("initial_code")
-  language       String
-  recordedEvents String    @map("recorded_events") // Link to storage
-  
-  // Relations
-  assessment     Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  user           User       @relation(fields: [userId], references: [id])
-
-  @@map("code_sessions")
-}
-
-// Collaborative whiteboard sessions
-model WhiteboardSession {
-  id        String   @id @default(uuid())
-  ownerId   String   @map("owner_id")
-  yjsDocId  String   @map("yjs_doc_id") // Reference to Y.js document
-  createdAt DateTime @default(now()) @map("created_at")
-  
-  // Relations
-  owner     User     @relation("WhiteboardOwner", fields: [ownerId], references: [id])
-
-  @@map("whiteboard_sessions")
-}
-
-// Interview sessions
-model InterviewSession {
-  id            String         @id @default(uuid())
-  userId        String         @map("user_id")
-  type          InterviewType
-  audioRefs     String[]       @map("audio_refs") // Array of audio file references
-  transcriptRef String?        @map("transcript_ref")
-  evaluationRef String?        @map("evaluation_ref")
-  
-  // Relations
-  user          User           @relation(fields: [userId], references: [id])
-
-  @@map("interview_sessions")
-}
-
-// Resources/documentation for RAG
-model Resource {
-  id       String @id @default(uuid())
-  title    String
-  content  String // Could be URL or actual content
-  metadata Json   // RAG metadata
-
-  @@map("resources")
-}
-
-// User tasks
-model Task {
-  id       String    @id @default(uuid())
-  userId   String    @map("user_id")
-  title    String
-  status   TaskStatus
-  dueDate  DateTime? @map("due_date")
-  
-  // Relations
-  user     User      @relation(fields: [userId], references: [id])
-
-  @@map("tasks")
-}
-
-// Blog posts
-model Blog {
-  id          String    @id @default(uuid())
-  authorId    String    @map("author_id")
-  slug        String    @unique
-  title       String
-  body        String
-  tags        String[]
-  publishedAt DateTime? @map("published_at")
-  
-  // Relations
-  author      User      @relation(fields: [authorId], references: [id])
-
-  @@map("blogs")
-}
-
-// Payment subscriptions
-model Subscription {
-  id        String           @id @default(uuid())
-  userId    String           @map("user_id")
-  plan      SubscriptionPlan
-  status    SubscriptionStatus
-  stripeId  String?          @map("stripe_id")
-  startDate DateTime         @default(now()) @map("start_date")
-  endDate   DateTime?        @map("end_date")
-  
-  // Relations
-  user      User             @relation(fields: [userId], references: [id])
-
-  @@map("subscriptions")
-}
 
 // Enums
 enum UserRole {
@@ -269,50 +63,4 @@ enum UserRole {
   ADMIN
   INSTRUCTOR
   MODERATOR
-}
-
-enum QuizType {
-  MCQ
-  CODE
-  SHORT_ANSWER
-}
-
-enum AssessmentType {
-  DSA
-  PROJECT
-  SYSTEM_DESIGN
-  BEHAVIORAL
-}
-
-enum AssessmentStatus {
-  SCHEDULED
-  IN_PROGRESS
-  COMPLETED
-  EVALUATED
-  CANCELED
-}
-
-enum InterviewType {
-  AI
-  HUMAN
-}
-
-enum TaskStatus {
-  TODO
-  IN_PROGRESS
-  DONE
-}
-
-enum SubscriptionPlan {
-  FREE
-  BASIC
-  PRO
-  ENTERPRISE
-}
-
-enum SubscriptionStatus {
-  ACTIVE
-  CANCELED
-  PAST_DUE
-  TRIAL
 }
